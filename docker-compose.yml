@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  proxy:
+    image: nginx:1.23
+    ports: 
+    - 80:80
+    volumes:
+    - ./proxy/todos.conf:/etc/nginx/nginx.conf:ro
+    - ./proxy/static:/etc/nginx/static
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    expose:
+      - "3000"
+    ports: 
+      - 3000:3000
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13.3
+    restart: always
+    environment:
+      POSTGRES_DB: "lab17"
+      POSTGRES_USER: "rust"
+      POSTGRES_PASSWORD: "1111"
+    volumes:
+       - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    ports:
+      - "5432:5432"
